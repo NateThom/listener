@@ -1,0 +1,2 @@
+string_reader
+-DCATKIN_DEVEL_PREFIX=/home/nthom/Documents/ros/synth_ws/devel -DCMAKE_INSTALL_PREFIX=/home/nthom/Documents/ros/synth_ws/install -G Unix Makefiles
