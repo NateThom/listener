@@ -1,8 +1,0 @@
-prefix=/home/nthom/Documents/ros/synth_ws/devel
-
-Name: string_reader
-Description: Description of string_reader
-Version: 0.0.0
-Cflags: 
-Libs: -L/home/nthom/Documents/ros/synth_ws/devel/lib 
-Requires: 

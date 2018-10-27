@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>listener</name>
+  <version>0.0.1</version>
+  <description>Translates speech to text</description>
+
+  <maintainer email="nathanthom@nevada.unr.edu">Nate Thom</maintainer>
+
+  <license>BSD</license>
+
+  <author email="nathanthom@nevada.unr.edu">Nate Thom</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>rospy</build_depend>
+  <build_depend>message_generation</build_depend>
+
+  <build_export_depend>rospy</build_export_depend>
+
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>message_runtime</exec_depend>
+</package>
