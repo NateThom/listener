@@ -2,9 +2,9 @@
 
 import sys
 import rospy
-from listener.srv import *
+from unr_deepspeech.srv import *
 
-def listener_client(filename):
+def unr_deepspeech_client(filename):
     rospy.wait_for_service('listen')
     try:
         listener = rospy.ServiceProxy('listen', Listen)
@@ -14,7 +14,7 @@ def listener_client(filename):
         print "Service call failed: %s"%e
 
 def usage():
-    return "%s [filename]"%sys.argv[0]
+    return "%s [filename]" % sys.argv[0]
 
 if __name__ == "__main__":
     if len(sys.argv) == 2:
@@ -22,5 +22,5 @@ if __name__ == "__main__":
     else:
         print usage()
         sys.exit(1)
-    print "Requesting prediction for speech audio in %s..."%(filename)
-    print "Prediction for speech audio in %s: \n %s"%(filename, listener_client(filename))
+    print "Requesting prediction for speech audio in %s..." % (filename)
+    print "Prediction for speech audio in %s: \n %s"%(filename, unr_deepspeech_client(filename))
