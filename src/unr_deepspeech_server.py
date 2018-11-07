@@ -32,8 +32,28 @@ def handle_listener(req):
 
 def listener_server():
     global listener
-    listener = DeepspeechNode(model_path="./model/")
+
+    model_path = "./model/"
+    if rospy.has_param("/unr_deepspeech/model"):
+        model_path = rospy.get_param("/unr_deepspeech/model")
+    print "Loading model from" + model_path
+    
+    listener = DeepspeechNode(model_path=model_path)
+    
+    if rospy.has_param("/unr_deepspeech/dictionary"):
+        dict_path = rospy.get_param("unr_deepspeech/dictionary")
+        print "Loading dictionary from " + dict_path
+        with open(dict_path) as dict_file:
+            listener.dictionary = dict_file.read().split("\n")
+
+    if rospy.has_param("/unr_deepspeech/possibilities"):
+        possibilities_path = rospy.get_param("unr_deepspeech/possibilities")
+        print "Loading possible transcripts from " + possibilities_path
+        with open(possibilities_path) as possibilities_file:
+            listener.possibilities = p_file.read().split("\n")
+
     rospy.init_node('listener_server')
+
     s = rospy.Service('listen', Listen, handle_listener)
     print "Ready to interpret speech audio."
     rospy.spin()
