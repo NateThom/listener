@@ -2,9 +2,8 @@
 
 from unr_deepspeech.srv import *
 import rospy
+from rospkg import RosPack
 
-#from deepspeech import Model rck
-#import scipy.io.wavfile as wav rck
 import wave
 import struct
 
@@ -33,7 +32,9 @@ def handle_listener(req):
 def listener_server():
     global listener
 
-    model_path = "./model/"
+    rp = RosPack()
+    package_path = rp.get_path("unr_deepspeech") 
+    model_path = "{}/model".format(package_path)
     if rospy.has_param("/unr_deepspeech/model"):
         model_path = rospy.get_param("/unr_deepspeech/model")
     print "Loading model from" + model_path

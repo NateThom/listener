@@ -1,35 +1,9 @@
 #!/usr/bin/env python
 
-'''
-import sys
-import rospy
-from unr_deepspeech.srv import *
-
-def unr_deepspeech_client(filename):
-    rospy.wait_for_service('listen')
-    try:
-        listener = rospy.ServiceProxy('listen', Listen)
-        resp1 = listener(filename)
-        return resp1.prediction
-    except rospy.ServiceException, e:
-        print "Service call failed: %s"%e
-
-def usage():
-    return "%s [filename]" % sys.argv[0]
-
-if __name__ == "__main__":
-    if len(sys.argv) == 2:
-        filename = sys.argv[1]
-    else:
-        print usage()
-        sys.exit(1)
-    print "Requesting prediction for speech audio in %s..." % (filename)
-    print "Prediction for speech audio in %s: \n %s"%(filename, unr_deepspeech_client(filename))
-'''
-
 from sys import byteorder
 from array import array
 from struct import pack
+import os
 
 import pyaudio
 import wave
@@ -38,6 +12,7 @@ import rospy
 from unr_deepspeech.srv import *
 
 from rospkg import RosPack
+import webrtcvad
 
 THRESHOLD = 500
 CHUNK_SIZE = 1024
@@ -161,7 +136,13 @@ if __name__ == "__main__":
     rospy.init_node("unr_deepspeech_client")
     current_time = int(rospy.get_time())
     rp = RosPack()
-    audio_path = rp.get_path("unr_deepspeech")
+    audio_path = rp.get_path("unr_deepspeech") + "/data"
     record_to_file("{}/{}.wav".format(audio_path, current_time))
+
     print("Text: {}".format(unr_deepspeech_client("{}/{}.wav".format(audio_path, current_time))))
+
+    # clean up after ourselves
+    keep_wav = rospy.get_param("/unr_deepspeech/keep_wav", False)
+    if not keep_wav:
+        os.remove("{}/{}.wav".format(audio_path, current_time))
     
