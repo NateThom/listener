@@ -50,7 +50,7 @@ def listener_server():
         possibilities_path = rospy.get_param("unr_deepspeech/possibilities")
         print "Loading possible transcripts from " + possibilities_path
         with open(possibilities_path) as possibilities_file:
-            listener.possibilities = p_file.read().split("\n")
+            listener.possibilities = possibilities_file.read().split("\n")
 
     rospy.init_node('listener_server')
 
