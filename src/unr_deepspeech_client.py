@@ -19,28 +19,6 @@ THRESHOLD = 500
 CHUNK_SIZE = 1024
 FORMAT = pyaudio.paInt16
 
-# See: en.wikipedia.org/wiki/Levenshtein_distance
-def levenshtein_distance(str1, str2):
-    if len(str2) > len(str1):
-        str2, str1 = str1, str2
-    row_count = len(str1)
-    col_count = len(str2)
-
-    row_current = range(row_count + 1)
-    for row_n in xrange(row_count):
-        row_next = [row_n + 1]
-        for col_n in xrange(col_count):
-            delete_cost = row_current[col_n + 1] + 1
-            insert_cost = row_next[col_n] + 1
-            substitution_cost = row_current[col_n] + 1
-            if str1[row_n] == str2[col_n]:
-                substitution_cost = row_current[col_n]
-
-            row_next.append(min([substitution_cost, delete_cost,
-                                 insert_cost]))
-        row_current = row_next
-    return row_current[-1]
-
 def unr_deepspeech_client(filename):
     rospy.wait_for_service('listen')
     try:
