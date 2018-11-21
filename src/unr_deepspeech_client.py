@@ -10,7 +10,6 @@ import wave
 
 import rospy
 from unr_deepspeech.srv import *
-from talker.srv import *
 
 from rospkg import RosPack
 import audioop
@@ -125,10 +124,10 @@ def record_to_file(path, rate, device):
     sample_width, data = record(rate, device)
 
     if rate != 16000:
-        data_16GHz = audioop.ratecv(data, sample_width, 1, 48000, 16000, None)[0]
+        data_16GHz = audioop.ratecv(data, sample_width, 1, rate, 16000, None)[0]
     else:
         data_16GHz = pack('<' + ('h'*len(data)), *data)
-
+        
     wf = wave.open(path, 'wb')
     wf.setnchannels(1)
     wf.setsampwidth(sample_width)
@@ -137,25 +136,61 @@ def record_to_file(path, rate, device):
     wf.close()
 
 if __name__ == "__main__":
-    device = 6
-    rate = 48000
-    print("Current device is {}. Please make sure this is the device you want".format(device))
-    print("Current sample rate is {}".format(rate))
-    # Print audio devices
-    # Ref: https://stackoverflow.com/a/39677871
+
     p = pyaudio.PyAudio()
+    print("")
     info = p.get_host_api_info_by_index(0)
     numdevices = info.get('deviceCount')
-    for i in range(0, numdevices):
-         if (p.get_device_info_by_host_api_device_index(0, i).get('maxInputChannels')) > 0:
-             print "Input Device id ", i, " - ", p.get_device_info_by_host_api_device_index(0, i).get('name')
-
+    
+    device = -1
+    rate = 48000
+    
+    if len(sys.argv) > 1:
+        if sys.argv[1] == "-1":
+            print("\nListing audio devices and exiting: ")
+            # Print audio devices
+            # Ref: https://stackoverflow.com/a/39677871
+            for i in range(0, numdevices):
+                if (p.get_device_info_by_host_api_device_index(0, i).get('maxInputChannels')) > 0:
+                    print "Input Device id ", i, " - ", p.get_device_info_by_host_api_device_index(0, i).get('name')
+            sys.exit(0)
+        else:
+            try:
+                device = int(sys.argv[1])
+            except ValueError:
+                print("Invalid audio device id.")
+                print("usage: rosrun unr_deepspeech unr_deepspeech_client.py [audio_device_index]")
+                sys.exit(1)
+    elif len(sys.argv) == 1: # search for default device        
+        for i in range(0, numdevices):
+             if (p.get_device_info_by_host_api_device_index(0, i).get('maxInputChannels')) > 0:
+                 if p.get_device_info_by_host_api_device_index(0, i).get('name') == 'default':
+                     device = i
+                     print("Using device {}".format(i))
+                     break
+        if device == -1:
+            print("Unable to find default device. Here are the available audio devices: ")
+            for i in range(0, numdevices):
+                if (p.get_device_info_by_host_api_device_index(0, i).get('maxInputChannels')) > 0:
+                    print "Input Device id ", i, " - ", p.get_device_info_by_host_api_device_index(0, i).get('name')
+            sys.exit(1)
+    else:
+        print("usage: rosrun unr_deepspeech unr_deepspeech_client.py [audio_device_index]")
+        sys.exit(1)
+        
     rospy.init_node("unr_deepspeech_client")
     current_time = int(rospy.get_time())
     rp = RosPack()
     audio_path = rp.get_path("unr_deepspeech") + "/data"
-    record_to_file("{}/{}.wav".format(audio_path, current_time), rate=rate, device=device)
 
+    print("Ready to record")
+    try:
+        record_to_file("{}/{}.wav".format(audio_path, current_time), rate=rate, device=device)
+    except:
+        print("Error transcribing audio. Check your audio device index.")
+        sys.exit(1)
+        
+    print("Transcribing speech...")
     print("Text: {}".format(unr_deepspeech_client("{}/{}.wav".format(audio_path, current_time))))
 
     # clean up after ourselves

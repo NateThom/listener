@@ -42,7 +42,8 @@ def listener_server():
     listener = DeepspeechNode(model_path=model_path)
     
     if rospy.has_param("/unr_deepspeech/dictionary"):
-        dict_path = rospy.get_param("unr_deepspeech/dictionary")
+        dict_filename = rospy.get_param("unr_deepspeech/dictionary")
+        dict_path = package_path + "/" + dict_filename
         print "Loading dictionary from " + dict_path
         with open(dict_path) as dict_file:
             listener.dictionary = dict_file.read().split("\n")
